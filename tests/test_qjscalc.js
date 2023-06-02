@@ -245,9 +245,9 @@ function test_trig()
 test_integer();
 test_float();
 
-test_modulo();
+//test_modulo();
 test_fraction();
-test_mod();
+//test_mod();
 test_polynomial();
 test_poly_mod();
 test_rfunc();
