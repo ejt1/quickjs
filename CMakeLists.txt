@@ -55,12 +55,19 @@ if (QUICKJS_BIGNUM)
     # qjscalc.c
     add_custom_command(
         OUTPUT qjscalc.c
-        COMMAND qjsc -fbignum -c -o qjscalc.c -m ${CMAKE_CURRENT_SOURCE_DIR}/qjscalc.js)
+        COMMAND qjsc -fbignum -c -o qjscalc.c ${CMAKE_CURRENT_SOURCE_DIR}/qjscalc.js)
     target_sources(qjs PRIVATE qjscalc.c)
 endif ()
 
 ###############################################################################
 ## tests
+add_library(bjson SHARED tests/bjson.c)
+target_compile_definitions(bjson PRIVATE JS_SHARED_LIBRARY)
+target_link_libraries(bjson PRIVATE libquickjs)
+
+add_library(point SHARED examples/point.c)
+target_link_libraries(point PRIVATE libquickjs)
+
 enable_testing()
 add_test(NAME test_closure COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_closure.js)
 add_test(NAME test_language COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_language.js)
