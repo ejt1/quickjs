@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.26)
 
 project(quickjs LANGUAGES C)
 
-option(QUICKJS_BIGNUM "Include code for BigInt/BigFloat/BigDecimal and math mode" OFF)
+option(QUICKJS_BIGNUM "Include code for BigInt/BigFloat/BigDecimal and math mode" ON)
 
 # fetch version into variable
 file(STRINGS VERSION QJS_VERSION)
@@ -56,6 +56,7 @@ if (QUICKJS_BIGNUM)
     add_custom_command(
         OUTPUT qjscalc.c
         COMMAND qjsc -fbignum -c -o qjscalc.c -m ${CMAKE_CURRENT_SOURCE_DIR}/qjscalc.js)
+    target_sources(qjs PRIVATE qjscalc.c)
 endif ()
 
 ###############################################################################
