@@ -28,23 +28,30 @@
 #include <inttypes.h>
 #include <string.h>
 #include <assert.h>
-#include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <sys/time.h>
 #include <time.h>
 #include <signal.h>
 #include <limits.h>
 #include <sys/stat.h>
-#include <dirent.h>
 #if defined(_WIN32)
 #include <windows.h>
 #include <conio.h>
-#include <utime.h>
+#include <sys/utime.h>
+#include <compat/dirent.h>
+
+#define popen _popen
+#define pclose _pclose
+#if !defined(PATH_MAX)
+#define PATH_MAX MAX_PATH
+#endif
 #else
+#include <dirent.h>
 #include <dlfcn.h>
 #include <termios.h>
+#include <unistd.h>
 #include <sys/ioctl.h>
+#include <sys/time.h>
 #include <sys/wait.h>
 
 #if defined(__APPLE__)
@@ -806,7 +813,7 @@ static void js_std_file_finalizer(JSRuntime *rt, JSValue val)
     }
 }
 
-static ssize_t js_get_errno(ssize_t ret)
+static intptr_t js_get_errno(intptr_t ret)
 {
     if (ret == -1)
         ret = -errno;
@@ -1636,7 +1643,7 @@ static JSValue js_os_read_write(JSContext *ctx, JSValueConst this_val,
     int fd;
     uint64_t pos, len;
     size_t size;
-    ssize_t ret;
+    intptr_t ret;
     uint8_t *buf;
     
     if (JS_ToInt32(ctx, &fd, argv[0]))

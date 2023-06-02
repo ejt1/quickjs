@@ -27,11 +27,14 @@
 #include <inttypes.h>
 #include <string.h>
 #include <assert.h>
+#if defined(_MSC_VER)
+#include <io.h>
+#include <compat/getopt.h>
+#else
 #include <unistd.h>
-#include <errno.h>
-#if !defined(_WIN32)
 #include <sys/wait.h>
 #endif
+#include <errno.h>
 
 #include "cutils.h"
 #include "quickjs-libc.h"

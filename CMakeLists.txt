@@ -1,0 +1,78 @@
+cmake_minimum_required(VERSION 3.26)
+
+project(quickjs LANGUAGES C)
+
+option(QUICKJS_BIGNUM "Include code for BigInt/BigFloat/BigDecimal and math mode" OFF)
+
+# fetch version into variable
+file(STRINGS VERSION QJS_VERSION)
+
+###############################################################################
+## libquickjs
+set(LIBQUICKJS_DEFS
+    QUICKJS_VERSION="${QJS_VERSION}")
+
+if (QUICKJS_BIGNUM)
+    list(APPEND LIBQUICKJS_DEFS CONFIG_BIGNUM)
+endif ()
+
+set(LIBQUICKJS_SRCS
+  cutils.c
+  libregexp.c
+  libunicode.c
+  quickjs-libc.c
+  quickjs.c)
+
+if (QUICKJS_BIGNUM)
+    # Not available in MSVC because of missing __int128
+    list(APPEND LIBQUICKJS_SRCS libbf.c)
+endif ()
+
+add_library(libquickjs ${LIBQUICKJS_SRCS})
+target_compile_definitions(libquickjs PUBLIC ${LIBQUICKJS_DEFS})
+target_include_directories(libquickjs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+###############################################################################
+## qjsc
+add_executable(qjsc qjsc.c)
+target_link_libraries(qjsc libquickjs)
+
+###############################################################################
+## qjs
+add_executable(qjs qjs.c repl.c)
+target_link_libraries(qjs libquickjs)
+
+# depend on qjsc for generating sources from js
+add_dependencies(qjs qjsc)
+
+# repl.c
+add_custom_command(
+    OUTPUT repl.c
+    COMMAND qjsc -c -o repl.c -m ${CMAKE_CURRENT_SOURCE_DIR}/repl.js)
+
+# qjscalc.c
+if (QUICKJS_BIGNUM)
+    # qjscalc.c
+    add_custom_command(
+        OUTPUT qjscalc.c
+        COMMAND qjsc -fbignum -c -o qjscalc.c -m ${CMAKE_CURRENT_SOURCE_DIR}/qjscalc.js)
+endif ()
+
+###############################################################################
+## tests
+enable_testing()
+add_test(NAME test_closure COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_closure.js)
+add_test(NAME test_language COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_language.js)
+add_test(NAME test_builtin COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_builtin.js)
+add_test(NAME test_loop COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_loop.js)
+add_test(NAME test_std COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_std.js)
+add_test(NAME test_worker COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_worker.js)
+if (QUICKJS_BIGNUM)
+    add_test(NAME test_bjson COMMAND qjs --bignum ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_bjson.js)
+    add_test(NAME test_op_overloading COMMAND qjs --bignum ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_op_overloading.js)
+    add_test(NAME test_bignum COMMAND qjs --bignum ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_bignum.js)
+    add_test(NAME test_qjscalc COMMAND qjs --qjscalc ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_qjscalc.js)
+else ()
+    add_test(NAME test_bjson COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_bjson.js)
+endif ()
+add_test(NAME test_point COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/examples/test_point.js)
