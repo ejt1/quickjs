@@ -29,7 +29,13 @@
 #include <inttypes.h>
 
 #if defined(_MSC_VER)
+#if !defined(WIN32_LEAN_AND_MEAN)
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <Windows.h>
+#if defined(WIN32_LEAN_AND_MEAN)
+#include <winsock.h> // for timeval
+#endif
 
 #if !defined(alloca)
 #define alloca(s) _alloca(s)

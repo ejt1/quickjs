@@ -35,6 +35,9 @@
 #include <limits.h>
 #include <sys/stat.h>
 #if defined(_WIN32)
+#if !defined(WIN32_LEAN_AND_MEAN)
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 #include <conio.h>
 #include <sys/utime.h>
