@@ -14,7 +14,8 @@
       },
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl.exe",
-        "CMAKE_CXX_COMPILER": "cl.exe"
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "QUICKJS_ONLY_LIBRARY": false
       },
       "condition": {
         "type": "equals",
