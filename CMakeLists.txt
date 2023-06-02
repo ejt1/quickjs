@@ -127,7 +127,8 @@ add_test(NAME test_language COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_l
 add_test(NAME test_builtin COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_builtin.js)
 add_test(NAME test_loop COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_loop.js)
 add_test(NAME test_std COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_std.js)
-add_test(NAME test_worker COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_worker.js)
+# XXX: os.Worker uses POSIX threads, not planned to migrate to windows yet
+#add_test(NAME test_worker COMMAND qjs ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_worker.js)
 if (QUICKJS_BIGNUM)
     add_test(NAME test_bjson COMMAND qjs --bignum ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_bjson.js)
     add_test(NAME test_op_overloading COMMAND qjs --bignum ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_op_overloading.js)
